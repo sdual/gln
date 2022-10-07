@@ -1,3 +1,4 @@
-fn main() {
-    println!("Hello, world!");
-}
+pub mod model;
+pub mod utils;
+
+fn main() {}
