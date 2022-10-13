@@ -1,4 +1,5 @@
-pub mod model;
-pub mod utils;
+mod model;
+mod utils;
+mod optimize;
 
 fn main() {}
