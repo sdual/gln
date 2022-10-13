@@ -1,7 +1,7 @@
 use crate::utils::math;
 
 pub trait OnlineGradient {
-    fn calculate_grad(&self, xs: &Vec<f32>, target: &f32, weights: &Vec<f32>, index: usize) -> f32;
+    fn calculate_grad(&self, xs: &Vec<f32>, target: f32, weights: &Vec<f32>, index: usize) -> f32;
 }
 
 pub struct LogGeometricMixingGradient {}
@@ -13,8 +13,8 @@ impl LogGeometricMixingGradient {
 }
 
 impl OnlineGradient for LogGeometricMixingGradient {
-    fn calculate_grad(&self, xs: &Vec<f32>, target: &f32, weights: &Vec<f32>, index: usize) -> f32 {
-        (math::geometric_mixing(xs, weights) - target) * math::logit(&xs[index])
+    fn calculate_grad(&self, xs: &Vec<f32>, target: f32, weights: &Vec<f32>, index: usize) -> f32 {
+        (math::geometric_mixing(xs, weights) - target) * math::logit(xs[index])
     }
 }
 
@@ -25,6 +25,6 @@ fn test_log_geometric_mixing_gradient() {
     let target = 1.0;
     let weights = vec![0.2, 1.6, 0.7];
     let index: usize = 1;
-    let actual = grad.calculate_grad(&xs, &target, &weights, index);
+    let actual = grad.calculate_grad(&xs, target, &weights, index);
     assert_eq!(actual, 0.28013876);
 }

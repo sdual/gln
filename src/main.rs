@@ -2,4 +2,9 @@ mod model;
 mod utils;
 mod optimize;
 
-fn main() {}
+fn main() {
+    let packed = "hoge";
+    let spaced = "fuga";
+
+    assert!(packed != spaced);
+}

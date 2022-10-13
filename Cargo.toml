@@ -8,3 +8,6 @@ edition = "2018"
 [dependencies]
 ndarray = "0.15.6"
 ndarray-linalg = { version = "0.15.0", features = ["openblas-system"] } # どの features を使うか後で考える
+
+[dev-dependencies]
+mockall = "0.11.2"
