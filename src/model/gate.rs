@@ -7,11 +7,11 @@ pub struct Gate<C: ContextFunction> {
     context_func: C,
 }
 
-impl<C: ContextFunction> Gate<C> {
-    pub fn with_half_space_context<F>(input_dim: usize,
-                                      context_dim: usize,
-                                      feature_dim: usize,
-                                      weight_init_func: F) -> Gate<HalfSpaceContext>
+impl Gate<HalfSpaceContext> {
+    pub fn new<F>(input_dim: usize,
+                  context_dim: usize,
+                  feature_dim: usize,
+                  weight_init_func: F) -> Gate<HalfSpaceContext>
         where F: Fn(usize, usize) -> Vec<Vec<f32>>
     {
         Gate {
@@ -20,7 +20,9 @@ impl<C: ContextFunction> Gate<C> {
             context_func: HalfSpaceContext::new(context_dim, feature_dim),
         }
     }
+}
 
+impl<C: ContextFunction> Gate<C> {
     pub fn select_weights(&self, side_effects: &Vec<f32>) -> &Vec<f32> {
         let indicator = Self::transform_contexts_to_weight_indicator(
             self.context_func.indicator_func(side_effects)
@@ -43,7 +45,7 @@ impl<C: ContextFunction> Gate<C> {
     }
 }
 
-fn initialize_balanced_weights(input_dim: usize, context_dim: usize) -> Vec<Vec<f32>> {
+pub fn initialize_balanced_weights(input_dim: usize, context_dim: usize) -> Vec<Vec<f32>> {
     let init_value: f32 = 1.0 / (input_dim as f32);
     (0..context_dim).into_iter().map(
         |_| (0..input_dim).into_iter().map(|_| init_value).collect::<Vec<f32>>()
@@ -92,7 +94,7 @@ mod test {
 
     #[test]
     fn test_update_weights() {
-        let mut gate = Gate::<HalfSpaceContext>::with_half_space_context(2, 3, 10, initialize_balanced_weights);
+        let mut gate = Gate::<HalfSpaceContext>::new(2, 3, 10, initialize_balanced_weights);
         gate.update_weights(0, vec![0.2, 0.1]);
         let actual = &gate.weights[0];
         let expected: Vec<f32> = vec![0.2, 0.1];
