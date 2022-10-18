@@ -10,11 +10,14 @@ pub struct Gate<'a> {
 }
 
 impl<'a> Gate<'a> {
-    pub fn with_half_space_context(
-        input_dim: usize, context_dim: usize) -> Self {
+    pub fn with_half_space_context<F>(input_dim: usize,
+                                      context_dim: usize,
+                                      weight_init_func: F) -> Self
+        where F: Fn(usize, usize) -> Vec<Vec<f32>>
+    {
         Gate {
             input_dim: input_dim,
-            weights: vec![vec![]],
+            weights: weight_init_func(input_dim, context_dim),
             context_func: &HalfSpaceContext {},
         }
     }
@@ -33,6 +36,13 @@ impl<'a> Gate<'a> {
         }
         weight_indicator as usize
     }
+}
+
+fn initialize_balanced_weights(input_dim: usize, context_dim: usize) -> Vec<Vec<f32>> {
+    let init_value: f32 = 1.0 / (input_dim as f32);
+    (0..context_dim).into_iter().map(
+        |ignore| (0..input_dim).into_iter().map(|ignore| init_value).collect::<Vec<f32>>()
+    ).collect()
 }
 
 #[test]
@@ -65,4 +75,11 @@ fn test_select_weights() {
     let actual = gate.select_weights(&side_effects);
 
     assert_eq!(*actual, vec![0.5, 0.6]);
+}
+
+#[test]
+fn test_initialize_balanced_weights() {
+    let actual = initialize_balanced_weights(2, 3);
+    let expected: Vec<Vec<f32>> = vec![vec![0.5, 0.5], vec![0.5, 0.5], vec![0.5, 0.5]];
+    assert_eq!(actual, expected);
 }
