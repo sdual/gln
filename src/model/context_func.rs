@@ -1,7 +1,3 @@
-use std::convert::TryInto;
-
-use ndarray::Array;
-use ndarray::prelude::*;
 use rand::thread_rng;
 use rand_distr::{Distribution, Normal};
 
@@ -57,18 +53,23 @@ impl ContextFunction for SkipGramContext {
     }
 }
 
-#[test]
-fn test_new_half_space_context() {
-    // このテストは後々いらない。初期化がうまく出来ているかチェックするためだけ。
-    let actual = HalfSpaceContext::new(2, 3);
-}
+#[cfg(test)]
+mod test {
+    use crate::model::context_func::{ContextFunction, HalfSpaceContext};
 
-#[test]
-fn test_half_space_indicator_func() {
-    let side_info = vec![1.2, 1.5, 0.9];
-    let context_dim = 4;
-    let feature_dim = 3;
-    let half_space_context = HalfSpaceContext::new(context_dim, feature_dim);
-    // TODO: テストできないので、乱数の生成はシードを固定できるようにする。
-    let actual = half_space_context.indicator_func(&side_info);
+    #[test]
+    fn test_new_half_space_context() {
+        // このテストは後々いらない。初期化がうまく出来ているかチェックするためだけ。
+        let actual = HalfSpaceContext::new(2, 3);
+    }
+
+    #[test]
+    fn test_half_space_indicator_func() {
+        let side_info = vec![1.2, 1.5, 0.9];
+        let context_dim = 4;
+        let feature_dim = 3;
+        let half_space_context = HalfSpaceContext::new(context_dim, feature_dim);
+        // TODO: テストできないので、乱数の生成はシードを固定できるようにする。
+        let actual = half_space_context.indicator_func(&side_info);
+    }
 }

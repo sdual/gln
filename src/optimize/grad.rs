@@ -18,13 +18,18 @@ impl OnlineGradient for LogGeometricMixingGradient {
     }
 }
 
-#[test]
-fn test_log_geometric_mixing_gradient() {
-    let grad = LogGeometricMixingGradient::new();
-    let xs = vec![0.1, 0.4, 0.6];
-    let target = 1.0;
-    let weights = vec![0.2, 1.6, 0.7];
-    let index: usize = 1;
-    let actual = grad.calculate_grad(&xs, target, &weights, index);
-    assert_eq!(actual, 0.28013876);
+#[cfg(test)]
+mod test {
+    use crate::optimize::grad::{LogGeometricMixingGradient, OnlineGradient};
+
+    #[test]
+    fn test_log_geometric_mixing_gradient() {
+        let grad = LogGeometricMixingGradient::new();
+        let xs = vec![0.1, 0.4, 0.6];
+        let target = 1.0;
+        let weights = vec![0.2, 1.6, 0.7];
+        let index: usize = 1;
+        let actual = grad.calculate_grad(&xs, target, &weights, index);
+        assert_eq!(actual, 0.28013876);
+    }
 }
