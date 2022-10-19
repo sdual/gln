@@ -15,11 +15,20 @@ pub struct HalfSpaceContext {
 impl HalfSpaceContext {
     pub fn new(context_dim: usize, feature_dim: usize) -> Self {
         let normal = Normal::new(0.0, 1.0).unwrap();
-        let context_maps: Vec<Vec<f32>> = (0..context_dim).into_iter().map(
-            |_| normal.sample_iter(&mut thread_rng()).take(feature_dim).collect::<Vec<f32>>()
-        ).collect();
+        let context_maps: Vec<Vec<f32>> = (0..context_dim)
+            .into_iter()
+            .map(|_| {
+                normal
+                    .sample_iter(&mut thread_rng())
+                    .take(feature_dim)
+                    .collect::<Vec<f32>>()
+            })
+            .collect();
 
-        let context_bias: Vec<f32> = normal.sample_iter(&mut thread_rng()).take(context_dim).collect();
+        let context_bias: Vec<f32> = normal
+            .sample_iter(&mut thread_rng())
+            .take(context_dim)
+            .collect();
 
         HalfSpaceContext {
             feature_dim,

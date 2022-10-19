@@ -1,20 +1,20 @@
 use crate::utils::math;
 
 pub trait OnlineGradient {
-    fn calculate_grad(&self, xs: &Vec<f32>, target: f32, weights: &Vec<f32>, index: usize) -> f32;
+    fn calculate_grad(&self, xs: &Vec<f32>, target: i32, weights: &Vec<f32>, index: usize) -> f32;
 }
 
 pub struct LogGeometricMixingGradient {}
 
 impl LogGeometricMixingGradient {
-    fn new() -> Self {
+    pub fn new() -> Self {
         LogGeometricMixingGradient {}
     }
 }
 
 impl OnlineGradient for LogGeometricMixingGradient {
-    fn calculate_grad(&self, xs: &Vec<f32>, target: f32, weights: &Vec<f32>, index: usize) -> f32 {
-        (math::geometric_mixing(xs, weights) - target) * math::logit(xs[index])
+    fn calculate_grad(&self, inputs: &Vec<f32>, target: i32, weights: &Vec<f32>, index: usize) -> f32 {
+        (math::geometric_mixing(inputs, weights) - target as f32) * math::logit(inputs[index])
     }
 }
 

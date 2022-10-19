@@ -1,15 +1,15 @@
-pub struct NeuronConfig {
+pub struct LayerConfig {
     pub pred_clipping_value: f32,
     pub weight_clipping_value: f32,
-    pub learning_late: f32,
+    pub learning_rate: f32,
 }
 
-impl NeuronConfig {
+impl LayerConfig {
     pub fn with_default_value() -> Self {
-        NeuronConfig {
+        LayerConfig {
             pred_clipping_value: 1e-3,
             weight_clipping_value: 5.0,
-            learning_late: 1e-3,
+            learning_rate: 1e-3,
         }
     }
 }

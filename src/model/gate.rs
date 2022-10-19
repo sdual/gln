@@ -3,7 +3,7 @@ use crate::model::context_func::HalfSpaceContext;
 
 pub struct Gate<C: ContextFunction> {
     input_dim: usize,
-    weights: Vec<Vec<f32>>,
+    pub weights: Vec<Vec<f32>>,
     context_func: C,
 }
 
@@ -23,11 +23,11 @@ impl Gate<HalfSpaceContext> {
 }
 
 impl<C: ContextFunction> Gate<C> {
-    pub fn select_weights(&self, side_effects: &Vec<f32>) -> &Vec<f32> {
+    pub fn select_weights(&self, side_effects: &Vec<f32>) -> (Vec<f32>, usize) {
         let indicator = Self::transform_contexts_to_weight_indicator(
             self.context_func.indicator_func(side_effects)
         );
-        &self.weights[indicator]
+        (self.weights[indicator].clone(), indicator)
     }
 
     pub fn update_weights(&mut self, context_index: usize, weights: Vec<f32>) {
@@ -47,7 +47,7 @@ impl<C: ContextFunction> Gate<C> {
 
 pub fn initialize_balanced_weights(input_dim: usize, context_dim: usize) -> Vec<Vec<f32>> {
     let init_value: f32 = 1.0 / (input_dim as f32);
-    (0..context_dim).into_iter().map(
+    (0..2_i32.pow(context_dim as u32)).into_iter().map(
         |_| (0..input_dim).into_iter().map(|_| init_value).collect::<Vec<f32>>()
     ).collect()
 }
@@ -87,9 +87,10 @@ mod test {
         };
 
         let side_effects = vec![0.1, 0.2, 0.2, 0.9];
-        let actual = gate.select_weights(&side_effects);
+        let (actual, index) = gate.select_weights(&side_effects);
 
         assert_eq!(*actual, vec![0.5, 0.6]);
+        assert_eq!(index, 2_usize);
     }
 
     #[test]
@@ -103,8 +104,8 @@ mod test {
 
     #[test]
     fn test_initialize_balanced_weights() {
-        let actual = initialize_balanced_weights(2, 3);
-        let expected: Vec<Vec<f32>> = vec![vec![0.5, 0.5], vec![0.5, 0.5], vec![0.5, 0.5]];
+        let actual = initialize_balanced_weights(2, 2);
+        let expected: Vec<Vec<f32>> = vec![vec![0.5, 0.5], vec![0.5, 0.5], vec![0.5, 0.5], vec![0.5, 0.5]];
         assert_eq!(actual, expected);
     }
 }
