@@ -1,7 +1,7 @@
 use crate::model::config::LayerConfig;
 use crate::model::context_func::HalfSpaceContext;
 use crate::model::neuron::Neuron;
-use crate::utils::math::{max, min};
+use crate::utils::math::{clip, logit, max, min};
 
 pub struct Layer {
     pred_clipping_value: f32,
@@ -39,13 +39,23 @@ impl Layer {
     }
 }
 
-pub struct BaseLayer;
+pub struct BaseLayer {
+    pred_clipping_value: f32,
+}
 
 impl BaseLayer {
+    pub fn new(pred_clipping_value: f32) -> Self {
+        BaseLayer {
+            pred_clipping_value,
+        }
+    }
+
     pub fn predict(&self, features: &Vec<f32>) -> Vec<f32> {
         let max_value: f32 = max(features);
         let min_value: f32 = min(features);
-        features.iter().map(|value| (value - min_value) / (max_value - min_value)).collect()
+        features.iter()
+            .map(|value| (value - min_value) / (max_value - min_value))
+            .map(|pred| logit(clip(pred, self.pred_clipping_value))).collect()
     }
 }
 
@@ -56,10 +66,12 @@ mod tests {
     #[test]
     fn test_base_layer_predict() {
         let features = vec![1.0, 5.0, 4.0, 4.0];
-        let base_layer = BaseLayer;
+        let base_layer = BaseLayer{
+            pred_clipping_value: 0.01
+        };
         let actual = base_layer.predict(&features);
 
-        let expected = vec![0.0, 1.0, 0.75, 0.75];
+        let expected = vec![-4.59512, 4.595121, 1.0986123, 1.0986123];
         assert_eq!(actual, expected);
     }
 }
