@@ -131,6 +131,7 @@ dependencies = [
  "ndarray",
  "ndarray-linalg",
  "rand",
+ "rand_chacha",
  "rand_distr",
 ]
 

@@ -1,4 +1,6 @@
-use rand::thread_rng;
+use rand::{SeedableRng, thread_rng};
+use rand::rngs::ThreadRng;
+use rand_chacha::{ChaCha20Rng, ChaCha8Rng};
 use rand_distr::{Distribution, Normal};
 
 pub trait ContextFunction {
@@ -15,11 +17,15 @@ pub struct HalfSpaceContext {
 impl HalfSpaceContext {
     pub fn new(context_dim: usize, feature_dim: usize) -> Self {
         let normal = Normal::new(0.0, 1.0).unwrap();
+
+        let mut rng = thread_rng();
+        let mut rng_seed = ChaCha8Rng::seed_from_u64(2);
+        // let mut rng = ChaCha8Rng::seed_from_u64(2);
         let context_maps: Vec<Vec<f32>> = (0..context_dim)
             .into_iter()
             .map(|_| {
                 normal
-                    .sample_iter(&mut thread_rng())
+                    .sample_iter(&mut rng_seed)
                     .take(feature_dim)
                     .collect::<Vec<f32>>()
             })
@@ -80,5 +86,9 @@ mod test {
         let half_space_context = HalfSpaceContext::new(context_dim, feature_dim);
         // TODO: テストできないので、乱数の生成はシードを固定できるようにする。
         let actual = half_space_context.indicator_func(&side_info);
+
+        for bit in actual {
+            println!("{}", bit);
+        }
     }
 }
