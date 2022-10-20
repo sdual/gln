@@ -4,11 +4,11 @@ pub trait OnlineGradient {
     fn calculate_grad(&self, xs: &Vec<f32>, target: i32, weights: &Vec<f32>, index: usize) -> f32;
 }
 
-pub struct LogGeometricMixingGradient {}
+pub struct LogGeometricMixingGradient;
 
 impl LogGeometricMixingGradient {
     pub fn new() -> Self {
-        LogGeometricMixingGradient {}
+        LogGeometricMixingGradient
     }
 }
 

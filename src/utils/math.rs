@@ -22,6 +22,14 @@ pub fn clip(value: f32, epsilon: f32) -> f32 {
     }
 }
 
+pub fn max(values: &Vec<f32>) -> f32 {
+    values.iter().fold(0.0 / 0.0, |m, v| v.max(m))
+}
+
+pub fn min(values: &Vec<f32>) -> f32 {
+    values.iter().fold(0.0 / 0.0, |m, v| v.min(m))
+}
+
 #[cfg(test)]
 mod tests {
     use crate::utils::math::{clip, geometric_mixing, logit, sigmoid};
