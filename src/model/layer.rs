@@ -19,6 +19,12 @@ impl Layer {
         }
     }
 
+    pub fn with_neuron_num(neuron_num: i32, input_dim: usize, context_dim: usize, feature_dim: usize) -> Self {
+        let neurons = (0..neuron_num)
+            .map(|_| Neuron::with_half_space_context(input_dim, context_dim, feature_dim)).collect();
+        Self::new(neurons)
+    }
+
     pub fn add_neuron(&mut self, neuron: Neuron<HalfSpaceContext>) {
         self.neurons.push(neuron)
     }

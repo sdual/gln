@@ -10,7 +10,6 @@ pub struct Neuron<C: ContextFunction> {
     optimizer: OnlineGradientDecent,
     gradient: LogGeometricMixingGradient,
     pred_clipping_value: f32,
-    feature_dim: usize,
 }
 
 impl Neuron<HalfSpaceContext> {
@@ -28,7 +27,6 @@ impl Neuron<HalfSpaceContext> {
             optimizer: OnlineGradientDecent::new(config.learning_rate, config.pred_clipping_value),
             gradient: LogGeometricMixingGradient::new(),
             pred_clipping_value: config.pred_clipping_value,
-            feature_dim,
         }
     }
 }
@@ -57,7 +55,7 @@ impl<C: ContextFunction> Neuron<C> {
     fn update_weights(&mut self, inputs: &Vec<f32>, target: i32,
                       current_weights: &Vec<f32>,
                       context_index: usize) {
-        let mut updated_weights = Vec::with_capacity(self.feature_dim);
+        let mut updated_weights = Vec::with_capacity(inputs.len());
 
         for (weight_index, _) in current_weights.iter().enumerate() {
             let grad = self.gradient.calculate_grad(inputs, target, current_weights, weight_index);
