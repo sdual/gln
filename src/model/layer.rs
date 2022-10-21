@@ -32,7 +32,7 @@ impl Layer {
     pub fn predict_by_all_neurons(&mut self, features: &Vec<f32>, target: i32, inputs: &Vec<f32>) -> Vec<f32> {
         let mut predictions = Vec::with_capacity(self.neurons.len());
         for neuron in &mut self.neurons {
-            let pred = neuron.predict_and_update_weights(features, inputs, target);
+            let pred = clip(neuron.predict_and_update_weights(features, inputs, target), self.pred_clipping_value);
             predictions.push(pred);
         }
         predictions
@@ -55,7 +55,8 @@ impl BaseLayer {
         let min_value: f32 = min(features);
         features.iter()
             .map(|value| (value - min_value) / (max_value - min_value))
-            .map(|pred| logit(clip(pred, self.pred_clipping_value))).collect()
+            .map(|value|clip(value, self.pred_clipping_value))
+            .collect()
     }
 }
 
@@ -66,7 +67,7 @@ mod tests {
     #[test]
     fn test_base_layer_predict() {
         let features = vec![1.0, 5.0, 4.0, 4.0];
-        let base_layer = BaseLayer{
+        let base_layer = BaseLayer {
             pred_clipping_value: 0.01
         };
         let actual = base_layer.predict(&features);

@@ -1,4 +1,7 @@
 pub fn logit(value: f32) -> f32 {
+    if value >= 1.0 || value <= 0.0 {
+        panic!("logit takes invalid value: {}", value);
+    }
     (value / (1.0 - value)).ln()
 }
 

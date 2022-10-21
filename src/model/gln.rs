@@ -1,7 +1,7 @@
 use crate::model::config::LayerConfig;
 use crate::model::layer::{BaseLayer, Layer};
 
-struct GLN {
+pub struct GLN {
     layers: Vec<Layer>,
     base_layer: BaseLayer,
 }

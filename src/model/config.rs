@@ -7,7 +7,7 @@ pub struct LayerConfig {
 impl LayerConfig {
     pub fn with_default_value() -> Self {
         LayerConfig {
-            pred_clipping_value: 1e-3,
+            pred_clipping_value: 1e-1,
             weight_clipping_value: 5.0,
             learning_rate: 1e-3,
         }
