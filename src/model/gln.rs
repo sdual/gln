@@ -36,7 +36,7 @@ impl GLN {
         if let Some(&pred) = predictions.first() {
             pred
         } else {
-            panic!("prediction value is not found. predictions vector is empty.");
+            panic!("prediction value is not found. `predictions` vector is empty.");
         }
     }
 }
