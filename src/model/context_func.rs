@@ -18,14 +18,14 @@ impl HalfSpaceContext {
     pub fn new(context_dim: usize, feature_dim: usize) -> Self {
         let normal = Normal::new(0.0, 1.0).unwrap();
 
-        // let mut rng = thread_rng();
-        let mut rng_with_seed = ChaCha8Rng::seed_from_u64(2);
+        let mut rng = thread_rng();
+        // let mut rng_with_seed = ChaCha8Rng::seed_from_u64(2);
         // let mut rng = ChaCha8Rng::seed_from_u64(2);
         let context_maps: Vec<Vec<f32>> = (0..context_dim)
             .into_iter()
             .map(|_| {
                 normal
-                    .sample_iter(&mut rng_with_seed)
+                    .sample_iter(&mut rng)
                     .take(feature_dim)
                     .collect::<Vec<f32>>()
             })

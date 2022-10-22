@@ -33,6 +33,22 @@ pub fn min(values: &Vec<f32>) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.min(m))
 }
 
+pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
+    let mut numerator = 0.0_f32;
+    for (pred, label) in predictions.iter().zip(labels) {
+        if *pred > 0.5 {
+            if *label == 1 {
+                numerator += 1.0;
+            }
+        } else {
+            if *label == 0 {
+                numerator += 1.0;
+            }
+        }
+    }
+    numerator / (predictions.len() as f32)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::utils::math::{clip, geometric_mixing, logit, sigmoid};
