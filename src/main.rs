@@ -13,8 +13,8 @@ fn main() {
     let mnist_38_df = DataFrame::read_csv("/Users/qtk/git/python/mnist-data/notebook/mnist_38.csv", true);
 
 
-    let neuron_nums = vec![8, 8, 1];
-    let context_dim = 4;
+    let neuron_nums = vec![20, 20, 1];
+    let context_dim = 5;
 
     let mut gln = GLN::new(neuron_nums, context_dim, mnist_38_df.features[0].len());
 

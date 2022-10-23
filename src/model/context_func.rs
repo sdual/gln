@@ -2,6 +2,7 @@ use rand::{SeedableRng, thread_rng};
 use rand::rngs::ThreadRng;
 use rand_chacha::{ChaCha20Rng, ChaCha8Rng};
 use rand_distr::{Distribution, Normal};
+use crate::utils::math::norm;
 
 pub trait ContextFunction {
     fn indicator_func(&self, side_info: &[f32]) -> Vec<bool>;
@@ -30,6 +31,10 @@ impl HalfSpaceContext {
                     .collect::<Vec<f32>>()
             })
             .collect();
+        let norm_vec: Vec<f32> = context_maps.iter().map(|x| norm(x)).collect();
+
+        let normalized_context_maps: Vec<Vec<f32>> = context_maps.iter().zip(norm_vec)
+            .map(|(vec, norm)| vec.iter().map(|value| value / norm).collect::<Vec<f32>>()).collect();
 
         let context_bias: Vec<f32> = normal
             .sample_iter(&mut thread_rng())
@@ -39,7 +44,7 @@ impl HalfSpaceContext {
         HalfSpaceContext {
             feature_dim,
             context_dim,
-            context_maps,
+            context_maps: normalized_context_maps,
             context_bias,
         }
     }

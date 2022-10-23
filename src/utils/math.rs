@@ -25,6 +25,11 @@ pub fn clip(value: f32, epsilon: f32) -> f32 {
     }
 }
 
+pub fn norm(vector: &Vec<f32>) -> f32 {
+    let inner_product_itself: f32 = vector.iter().map(|ele| ele.powf(2.0)).sum();
+    inner_product_itself.sqrt()
+}
+
 pub fn max(values: &Vec<f32>) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.max(m))
 }

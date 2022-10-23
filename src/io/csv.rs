@@ -6,8 +6,6 @@ use std::error::Error;
 
 use csv::StringRecord;
 
-pub struct CSVReader;
-
 #[derive(Debug)]
 pub struct DataFrame {
     pub features: Vec<Vec<f32>>,
@@ -42,7 +40,7 @@ impl DataFrame {
     fn push(&mut self, row: &csv::StringRecord) {
         let feature_dim = 784;
         let mut row_vec = Vec::with_capacity(feature_dim);
-        for index in 0..feature_dim{
+        for index in 0..feature_dim {
             row_vec.push(row[index].parse().unwrap());
         }
         self.features.push(row_vec);
