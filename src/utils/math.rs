@@ -1,4 +1,7 @@
 pub fn logit(value: f32) -> f32 {
+    if value >= 1.0 || value <= 0.0 {
+        panic!("logit takes invalid value: {}", value);
+    }
     (value / (1.0 - value)).ln()
 }
 
@@ -22,12 +25,33 @@ pub fn clip(value: f32, epsilon: f32) -> f32 {
     }
 }
 
+pub fn norm(vector: &Vec<f32>) -> f32 {
+    let inner_product_itself: f32 = vector.iter().map(|ele| ele.powf(2.0)).sum();
+    inner_product_itself.sqrt()
+}
+
 pub fn max(values: &Vec<f32>) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.max(m))
 }
 
 pub fn min(values: &Vec<f32>) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.min(m))
+}
+
+pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
+    let mut numerator = 0.0_f32;
+    for (pred, label) in predictions.iter().zip(labels) {
+        if *pred > 0.5 {
+            if *label == 1 {
+                numerator += 1.0;
+            }
+        } else {
+            if *label == 0 {
+                numerator += 1.0;
+            }
+        }
+    }
+    numerator / (predictions.len() as f32)
 }
 
 #[cfg(test)]

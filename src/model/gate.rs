@@ -23,9 +23,9 @@ impl Gate<HalfSpaceContext> {
 }
 
 impl<C: ContextFunction> Gate<C> {
-    pub fn select_weights(&self, side_effects: &Vec<f32>) -> (Vec<f32>, usize) {
+    pub fn select_weights(&self, side_info: &Vec<f32>) -> (Vec<f32>, usize) {
         let indicator = Self::transform_contexts_to_weight_indicator(
-            self.context_func.indicator_func(side_effects)
+            self.context_func.indicator_func(side_info)
         );
         (self.weights[indicator].clone(), indicator)
     }
@@ -71,7 +71,7 @@ mod test {
         pub ContextFunctionM {}
 
         impl ContextFunction for ContextFunctionM {
-            fn indicator_func(&self, side_effects: &[f32]) -> Vec<bool>;
+            fn indicator_func(&self, side_info: &[f32]) -> Vec<bool>;
         }
     }
 
@@ -79,15 +79,15 @@ mod test {
     fn test_select_weights() {
         let mut mock_context_func = MockContextFunctionM::new();
         mock_context_func.expect_indicator_func()
-            .returning(|side_effects| vec![false, true]);
+            .returning(|side_info| vec![false, true]);
         let gate = Gate {
             input_dim: 4,
             weights: vec![vec![0.1, 0.2], vec![0.3, 0.4], vec![0.5, 0.6], vec![0.7, 0.8]],
             context_func: mock_context_func,
         };
 
-        let side_effects = vec![0.1, 0.2, 0.2, 0.9];
-        let (actual, index) = gate.select_weights(&side_effects);
+        let side_info = vec![0.1, 0.2, 0.2, 0.9];
+        let (actual, index) = gate.select_weights(&side_info);
 
         assert_eq!(*actual, vec![0.5, 0.6]);
         assert_eq!(index, 2_usize);

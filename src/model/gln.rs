@@ -1,7 +1,7 @@
 use crate::model::config::LayerConfig;
 use crate::model::layer::{BaseLayer, Layer};
 
-struct GLN {
+pub struct GLN {
     layers: Vec<Layer>,
     base_layer: BaseLayer,
 }
@@ -36,7 +36,7 @@ impl GLN {
         if let Some(&pred) = predictions.first() {
             pred
         } else {
-            panic!("prediction value is not found. predictions vector is empty.");
+            panic!("prediction value is not found. `predictions` vector is empty.");
         }
     }
 }
