@@ -10,8 +10,11 @@ pub fn sigmoid(value: f32) -> f32 {
 }
 
 pub fn geometric_mixing(probabilities: &Vec<f32>, weights: &Vec<f32>) -> f32 {
-    let weight_multiplied_logits = weights.iter()
-        .zip(probabilities).map(|(w, p)| w * logit(*p)).sum();
+    let weight_multiplied_logits = weights
+        .iter()
+        .zip(probabilities)
+        .map(|(w, p)| w * logit(*p))
+        .sum();
     sigmoid(weight_multiplied_logits)
 }
 
@@ -30,12 +33,30 @@ pub fn norm(vector: &Vec<f32>) -> f32 {
     inner_product_itself.sqrt()
 }
 
-pub fn max(values: &Vec<f32>) -> f32 {
+pub fn max(values: &[f32]) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.max(m))
 }
 
-pub fn min(values: &Vec<f32>) -> f32 {
+pub fn min(values: &[f32]) -> f32 {
     values.iter().fold(0.0 / 0.0, |m, v| v.min(m))
+}
+
+pub fn sparse_max(values: &[f32]) -> f32 {
+    let maybe_max = max(values);
+    if maybe_max > 0.0 {
+        maybe_max
+    } else {
+        0.0
+    }
+}
+
+pub fn sparse_min(values: &[f32]) -> f32 {
+    let maybe_min = min(values);
+    if maybe_min < 0.0 {
+        maybe_min
+    } else {
+        0.0
+    }
 }
 
 pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {

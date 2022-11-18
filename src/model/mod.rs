@@ -1,6 +1,6 @@
-pub mod neuron;
-pub mod gate;
-pub mod context_func;
 pub mod config;
-pub mod layer;
+pub mod context_func;
+pub mod gate;
 pub mod gln;
+pub mod layer;
+pub mod neuron;

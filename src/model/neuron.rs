@@ -1,8 +1,11 @@
+use nalgebra::DVector;
+
 use crate::model::config::LayerConfig;
 use crate::model::context_func::{ContextFunction, HalfSpaceContext, SkipGramContext};
-use crate::model::gate::{Gate, initialize_balanced_weights};
+use crate::model::gate::{initialize_balanced_weights, Gate};
 use crate::optimize::grad::{LogGeometricMixingGradient, OnlineGradient};
 use crate::optimize::optimizer::OnlineGradientDecent;
+use crate::utils::data_type::ContextIndex;
 use crate::utils::math::{clip, logit, sigmoid};
 
 pub struct Neuron<C: ContextFunction> {
@@ -14,9 +17,11 @@ pub struct Neuron<C: ContextFunction> {
 }
 
 impl Neuron<HalfSpaceContext> {
-    pub fn with_half_space_context(input_dim: usize,
-                                   context_dim: usize,
-                                   feature_dim: usize) -> Neuron<HalfSpaceContext> {
+    pub fn with_half_space_context(
+        input_dim: usize,
+        context_dim: usize,
+        feature_dim: usize,
+    ) -> Neuron<HalfSpaceContext> {
         let config = LayerConfig::with_default_value();
         Neuron {
             gate: Gate::<HalfSpaceContext>::new(
@@ -25,7 +30,7 @@ impl Neuron<HalfSpaceContext> {
                 feature_dim,
                 initialize_balanced_weights,
             ),
-            optimizer: OnlineGradientDecent::new(config.learning_rate, config.pred_clipping_value),
+            optimizer: OnlineGradientDecent::new(config.learning_rate),
             gradient: LogGeometricMixingGradient::new(),
             pred_clipping_value: config.pred_clipping_value,
             weight_clipping_value: config.weight_clipping_value,
@@ -34,38 +39,40 @@ impl Neuron<HalfSpaceContext> {
 }
 
 impl Neuron<SkipGramContext> {
-    pub fn with_skip_gram_context(input_dim: usize,
-                                  context_dim: usize,
-                                  feature_dim: usize) {
+    pub fn with_skip_gram_context(input_dim: usize, context_dim: usize, feature_dim: usize) {
         todo!()
     }
 }
 
 impl<C: ContextFunction> Neuron<C> {
-    pub fn predict_and_update_weights(&mut self, features: &Vec<f32>, inputs: &Vec<f32>, target: i32) -> f32 {
-        let (current_weights, context_index) = self.gate.select_weights(features);
+    pub fn predict_by_context_index(&self, context_index: ContextIndex, inputs: &Vec<f32>) -> f32 {
+        let current_weights = self.gate.get_weights(context_index);
         let mut logit_sum = 0.0_f32;
         for (weight, input) in current_weights.iter().zip(inputs) {
             logit_sum += weight * logit(clip(*input, self.pred_clipping_value));
-        };
-        let prediction = clip(sigmoid(logit_sum), self.pred_clipping_value);
-
-        self.update_weights(inputs, target, &current_weights, context_index);
-        prediction
+        }
+        clip(sigmoid(logit_sum), self.pred_clipping_value)
     }
 
-    fn update_weights(&mut self, inputs: &Vec<f32>, target: i32,
-                      current_weights: &Vec<f32>,
-                      context_index: usize) {
+    pub fn update_weights(&mut self, inputs: &Vec<f32>, target: i32, context_index: ContextIndex) {
         let mut updated_weights = Vec::with_capacity(inputs.len());
+        let current_weights = self.gate.get_weights(context_index);
 
         for (weight_index, _) in current_weights.iter().enumerate() {
-            let grad = self.gradient.calculate_grad(inputs, target, current_weights, weight_index);
+            let grad = self
+                .gradient
+                .calculate_grad(inputs, target, &current_weights, weight_index);
+
             let updated_weight = self.optimizer.update(current_weights[weight_index], grad);
             updated_weights.push(clip(updated_weight, self.weight_clipping_value));
         }
 
         self.gate.update_weights(context_index, updated_weights);
+    }
+
+    pub fn get_current_weights(&self, features: &DVector<f32>) -> (Vec<f32>, usize) {
+        let (current_weights, context_index) = self.gate.select_weights(features);
+        (current_weights, context_index)
     }
 }
 

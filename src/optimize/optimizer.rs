@@ -1,13 +1,11 @@
 pub struct OnlineGradientDecent {
     learning_rate: f32,
-    pred_clipping_value: f32,
 }
 
 impl OnlineGradientDecent {
-    pub fn new(learning_rate: f32, pred_clipping_value: f32) -> Self {
+    pub fn new(learning_rate: f32) -> Self {
         OnlineGradientDecent {
             learning_rate: learning_rate,
-            pred_clipping_value: pred_clipping_value,
         }
     }
 
