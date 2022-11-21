@@ -1,4 +1,4 @@
-use nalgebra::DVector;
+use nalgebra::{DMatrix, DVector};
 
 use crate::model::gln::GLN;
 
@@ -11,7 +11,10 @@ mod optimize;
 mod utils;
 
 fn main() {
-    let mnist_38_df = DataFrame::read_csv("/Users/a13659/git/ise/mnist-data/mnist_38.csv", true);
+    let mnist_38_df = DataFrame::read_csv(
+        "/Users/qtk/git/python/mnist-data/notebook/mnist_38.csv",
+        true,
+    );
 
     let neuron_nums = vec![20, 20, 1];
     let context_dim = 5;
@@ -23,9 +26,9 @@ fn main() {
         let feature_vec = DVector::from_vec(features.clone());
         let mut output = gln.predict(&feature_vec);
         predictions.push(output.probability);
-        println!("{}", output.probability);
+        _ = gln.train(&feature_vec, *label, &mut output.context_index_map);
 
-        gln.train(&feature_vec, *label, &mut output.context_index_map);
+        println!("preidction: {}", output.probability);
     }
 
     let acc = accuracy(&predictions, &mnist_38_df.labels);

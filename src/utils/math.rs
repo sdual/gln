@@ -18,11 +18,21 @@ pub fn geometric_mixing(probabilities: &Vec<f32>, weights: &Vec<f32>) -> f32 {
     sigmoid(weight_multiplied_logits)
 }
 
-pub fn clip(value: f32, epsilon: f32) -> f32 {
-    if value == 1.0 {
-        value - epsilon
-    } else if value == 0.0 {
-        value + epsilon
+pub fn clip_prob(value: f32, epsilon: f32) -> f32 {
+    if value >= (1.0 - epsilon) {
+        1.0 - epsilon
+    } else if value <= (0.0 + epsilon) {
+        epsilon
+    } else {
+        value
+    }
+}
+
+pub fn clip_hypercube(value: f32, edge: f32) -> f32 {
+    if value >= edge {
+        edge
+    } else if value <= -edge {
+        -edge
     } else {
         value
     }
@@ -77,7 +87,7 @@ pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::math::{clip, geometric_mixing, logit, sigmoid};
+    use crate::utils::math::{clip_prob, geometric_mixing, logit, sigmoid};
 
     #[test]
     fn test_logit() {
@@ -115,9 +125,9 @@ mod tests {
         let value2 = 0.0_f32;
         let value3 = 0.3_f32;
 
-        let actual1 = clip(value1, epsilon);
-        let actual2 = clip(value2, epsilon);
-        let actual3 = clip(value3, epsilon);
+        let actual1 = clip_prob(value1, epsilon);
+        let actual2 = clip_prob(value2, epsilon);
+        let actual3 = clip_prob(value3, epsilon);
 
         assert_eq!(actual1, 1.0_f32 - epsilon);
         assert_eq!(actual2, 0.0_f32 + epsilon);

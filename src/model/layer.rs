@@ -5,7 +5,7 @@ use nalgebra::{DMatrix, DVector};
 use crate::model::context_func::HalfSpaceContext;
 use crate::model::neuron::Neuron;
 use crate::utils::data_type::{ContextIndex, NeuronId};
-use crate::utils::math::{clip, logit};
+use crate::utils::math::{clip_prob, logit};
 
 pub struct LayerPrediction {
     pub predictions: DMatrix<f32>,
@@ -48,11 +48,7 @@ impl Layer {
         target: i32,
     ) {
         for neuron_id in 0usize..self.num_neurons {
-            self.neurons[neuron_id].update_weights(
-                inputs,
-                target,
-                *context_index_map.get(&(neuron_id as NeuronId)).unwrap(),
-            );
+            self.neurons[neuron_id].update_weights(inputs, target, context_index_map[&neuron_id]);
         }
     }
 
@@ -62,11 +58,12 @@ impl Layer {
         inputs: &Vec<f32>,
     ) -> Vec<f32> {
         let mut probabilities = Vec::with_capacity(self.num_neurons);
-        for (neuron_id, context_index) in context_index_map {
-            let probability =
-                self.neurons[*neuron_id].predict_by_context_index(*context_index, inputs);
+        for neuron_id in 0usize..self.num_neurons {
+            let probability = self.neurons[neuron_id]
+                .predict_by_context_index(context_index_map[&neuron_id], inputs);
             probabilities.push(probability);
         }
+
         probabilities
     }
 
@@ -77,23 +74,19 @@ impl Layer {
     ) -> LayerPrediction {
         let mut weight_vec = Vec::new();
         let mut context_index_map = HashMap::new();
-        for (neuron_index, neuron) in self.neurons.iter().enumerate() {
+        for (neuron_id, neuron) in self.neurons.iter().enumerate() {
             let (weights, context_index) = neuron.get_current_weights(features);
             weight_vec.append(&mut weights.clone());
-            context_index_map.insert(neuron_index, context_index);
+            context_index_map.insert(neuron_id, context_index);
         }
 
-        let weight_matrix = DMatrix::from_vec(self.num_neurons, self.input_dim, weight_vec);
+        let weight_matrix = DMatrix::from_row_slice(self.num_neurons, self.input_dim, &weight_vec);
 
         LayerPrediction {
             predictions: (weight_matrix * previous_vector),
             context_index_map: Some(context_index_map),
         }
     }
-}
-
-pub struct BaseLayerPrediction {
-    pub logits: DMatrix<f32>,
 }
 
 pub struct BaseLayer {
@@ -116,7 +109,7 @@ impl BaseLayer {
         let base_predictions = features
             .iter()
             .map(|value| (value - min_value) / (max_value - min_value))
-            .map(|value| clip(value, self.pred_clipping_value))
+            .map(|value| clip_prob(value, self.pred_clipping_value))
             .collect::<Vec<f32>>();
         base_predictions
     }
@@ -128,11 +121,11 @@ impl BaseLayer {
         let base_predictions = features
             .iter()
             .map(|value| (value - min_value) / (max_value - min_value))
-            .map(|value| logit(clip(value, self.pred_clipping_value)))
+            .map(|value| logit(clip_prob(value, self.pred_clipping_value)))
             .collect::<Vec<f32>>();
 
         LayerPrediction {
-            predictions: DMatrix::from_vec(self.feature_dim, 1, base_predictions),
+            predictions: DMatrix::from_row_slice(self.feature_dim, 1, &base_predictions),
             context_index_map: None,
         }
     }

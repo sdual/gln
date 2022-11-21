@@ -50,15 +50,18 @@ impl GLN {
         features: &DVector<f32>,
         target: i32,
         context_index_map: &HashMap<LayerId, HashMap<NeuronId, ContextIndex>>,
-    ) {
+    ) -> f32 {
         let mut inputs = self.base_layer.predict(features);
 
-        for layer_id in 0..self.num_layers {
-            let layer_context_index_map = context_index_map.get(&layer_id).unwrap();
-            self.layers[layer_id].train(&layer_context_index_map, &inputs, target);
-            inputs =
+        for layer_id in 0usize..self.num_layers {
+            let layer_context_index_map = &context_index_map[&layer_id];
+            let inputs_tmp =
                 self.layers[layer_id].predict_by_context_index(&layer_context_index_map, &inputs);
+            self.layers[layer_id].train(&layer_context_index_map, &inputs, target);
+            inputs = inputs_tmp;
         }
+
+        inputs[0]
     }
 
     pub fn predict(&self, features: &DVector<f32>) -> GLNPrediction {
@@ -71,6 +74,7 @@ impl GLN {
             layer_context_index_map
                 .insert(layer_index, layer_prediction.context_index_map.unwrap());
         }
+        // println!("pred context_index_map: {:?}", layer_context_index_map);
 
         if let Some(&pred) = layer_prediction.predictions.get(0) {
             GLNPrediction {
