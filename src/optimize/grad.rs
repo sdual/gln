@@ -1,5 +1,4 @@
 use crate::utils::math;
-use crate::utils::math::clip;
 
 pub trait OnlineGradient {
     fn calculate_grad(&self, xs: &Vec<f32>, target: i32, weights: &Vec<f32>, index: usize) -> f32;
@@ -14,7 +13,13 @@ impl LogGeometricMixingGradient {
 }
 
 impl OnlineGradient for LogGeometricMixingGradient {
-    fn calculate_grad(&self, inputs: &Vec<f32>, target: i32, weights: &Vec<f32>, index: usize) -> f32 {
+    fn calculate_grad(
+        &self,
+        inputs: &Vec<f32>,
+        target: i32,
+        weights: &Vec<f32>,
+        index: usize,
+    ) -> f32 {
         (math::geometric_mixing(inputs, weights) - target as f32) * math::logit(inputs[index])
     }
 }
