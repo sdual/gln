@@ -43,48 +43,6 @@ pub fn norm(vector: &Vec<f32>) -> f32 {
     inner_product_itself.sqrt()
 }
 
-pub fn max(values: &[f32]) -> f32 {
-    values.iter().fold(0.0 / 0.0, |m, v| v.max(m))
-}
-
-pub fn min(values: &[f32]) -> f32 {
-    values.iter().fold(0.0 / 0.0, |m, v| v.min(m))
-}
-
-pub fn sparse_max(values: &[f32]) -> f32 {
-    let maybe_max = max(values);
-    if maybe_max > 0.0 {
-        maybe_max
-    } else {
-        0.0
-    }
-}
-
-pub fn sparse_min(values: &[f32]) -> f32 {
-    let maybe_min = min(values);
-    if maybe_min < 0.0 {
-        maybe_min
-    } else {
-        0.0
-    }
-}
-
-pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
-    let mut numerator = 0.0_f32;
-    for (pred, label) in predictions.iter().zip(labels) {
-        if *pred > 0.5 {
-            if *label == 1 {
-                numerator += 1.0;
-            }
-        } else {
-            if *label == 0 {
-                numerator += 1.0;
-            }
-        }
-    }
-    numerator / (predictions.len() as f32)
-}
-
 #[cfg(test)]
 mod tests {
     use crate::utils::math::{clip_prob, geometric_mixing, logit, sigmoid};

@@ -1,4 +1,3 @@
-use nalgebra::DMatrix;
 use nalgebra::DVector;
 
 use crate::model::context_func::ContextFunction;
@@ -6,7 +5,6 @@ use crate::model::context_func::HalfSpaceContext;
 use crate::utils::data_type::ContextIndex;
 
 pub struct Gate<C: ContextFunction> {
-    input_dim: usize,
     weights: Vec<Vec<f32>>,
     context_func: C,
 }
@@ -22,7 +20,6 @@ impl Gate<HalfSpaceContext> {
         F: Fn(usize, usize) -> Vec<Vec<f32>>,
     {
         Gate {
-            input_dim: input_dim,
             weights: weight_init_func(input_dim, context_dim),
             context_func: HalfSpaceContext::new(context_dim, feature_dim),
         }

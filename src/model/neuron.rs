@@ -39,7 +39,7 @@ impl Neuron<HalfSpaceContext> {
 }
 
 impl Neuron<SkipGramContext> {
-    pub fn with_skip_gram_context(input_dim: usize, context_dim: usize, feature_dim: usize) {
+    pub fn with_skip_gram_context(_input_dim: usize, _context_dim: usize, _feature_dim: usize) {
         todo!()
     }
 }
