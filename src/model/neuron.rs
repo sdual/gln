@@ -6,7 +6,7 @@ use crate::model::gate::{initialize_balanced_weights, Gate};
 use crate::optimize::grad::{LogGeometricMixingGradient, OnlineGradient};
 use crate::optimize::optimizer::OnlineGradientDecent;
 use crate::utils::data_type::ContextIndex;
-use crate::utils::math::{clip, logit, sigmoid};
+use crate::utils::math::{clip_hypercube, clip_prob, logit, sigmoid};
 
 pub struct Neuron<C: ContextFunction> {
     gate: Gate<C>,
@@ -49,9 +49,9 @@ impl<C: ContextFunction> Neuron<C> {
         let current_weights = self.gate.get_weights(context_index);
         let mut logit_sum = 0.0_f32;
         for (weight, input) in current_weights.iter().zip(inputs) {
-            logit_sum += weight * logit(clip(*input, self.pred_clipping_value));
+            logit_sum += weight * logit(clip_prob(*input, self.pred_clipping_value));
         }
-        clip(sigmoid(logit_sum), self.pred_clipping_value)
+        clip_prob(sigmoid(logit_sum), self.pred_clipping_value)
     }
 
     pub fn update_weights(&mut self, inputs: &Vec<f32>, target: i32, context_index: ContextIndex) {
@@ -64,7 +64,7 @@ impl<C: ContextFunction> Neuron<C> {
                 .calculate_grad(inputs, target, &current_weights, weight_index);
 
             let updated_weight = self.optimizer.update(current_weights[weight_index], grad);
-            updated_weights.push(clip(updated_weight, self.weight_clipping_value));
+            updated_weights.push(clip_hypercube(updated_weight, self.weight_clipping_value));
         }
 
         self.gate.update_weights(context_index, updated_weights);
