@@ -18,6 +18,10 @@ pub struct Layer {
     input_dim: usize,
 }
 
+pub struct LayerTrainHistory {
+    neuron_losses: Vec<f32>,
+}
+
 impl Layer {
     pub fn new(neurons: Vec<Neuron<HalfSpaceContext>>, input_dim: usize) -> Self {
         let num_neurons = neurons.len();
@@ -46,10 +50,11 @@ impl Layer {
         context_index_map: &HashMap<NeuronId, ContextIndex>,
         inputs: &Vec<f32>,
         target: i32,
-    ) {
+    ) -> LayerTrainHistory {
         for neuron_id in 0usize..self.num_neurons {
             self.neurons[neuron_id].update_weights(inputs, target, context_index_map[&neuron_id]);
         }
+        LayerTrainHistory {}
     }
 
     pub fn predict_by_context_index(

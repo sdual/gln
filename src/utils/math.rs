@@ -18,6 +18,17 @@ pub fn geometric_mixing(probabilities: &Vec<f32>, weights: &Vec<f32>) -> f32 {
     sigmoid(weight_multiplied_logits)
 }
 
+pub fn geometric_mixing_loss(probabilities: &Vec<f32>, weights: &Vec<f32>, target: i32) -> f32 {
+    let geo = geometric_mixing(probabilities, weights);
+    if target == 1 {
+        -geo.ln()
+    } else if target == 0 {
+        -(1.0 - geo).ln()
+    } else {
+        panic!("invalid target value: {:?}", target);
+    }
+}
+
 pub fn clip_prob(value: f32, epsilon: f32) -> f32 {
     if value >= (1.0 - epsilon) {
         1.0 - epsilon

@@ -17,6 +17,11 @@ pub struct GLNPrediction {
     pub context_index_map: HashMap<LayerId, HashMap<NeuronId, ContextIndex>>,
 }
 
+pub struct TrainHistory {
+    pub prediction: f32,
+    pub loss: f32,
+}
+
 impl GLN {
     pub fn new(neuron_nums: Vec<usize>, context_dim: usize, feature_dim: usize) -> Self {
         let mut layers = Vec::with_capacity(neuron_nums.len());
@@ -42,6 +47,15 @@ impl GLN {
             layers,
             base_layer: BaseLayer::new(config.pred_clipping_value, feature_dim),
             num_layers,
+        }
+    }
+
+    pub fn predict_fit(&mut self, features: &DVector<f32>, target: i32) -> TrainHistory {
+        let pred = self.predict(features);
+        self.train(features, target, &pred.context_index_map);
+        TrainHistory {
+            prediction: pred.probability,
+            loss: (),
         }
     }
 

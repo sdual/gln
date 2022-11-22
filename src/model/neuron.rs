@@ -6,7 +6,9 @@ use crate::model::gate::{initialize_balanced_weights, Gate};
 use crate::optimize::grad::{LogGeometricMixingGradient, OnlineGradient};
 use crate::optimize::optimizer::OnlineGradientDecent;
 use crate::utils::data_type::ContextIndex;
-use crate::utils::math::{clip_hypercube, clip_prob, logit, sigmoid};
+use crate::utils::math::{
+    clip_hypercube, clip_prob, geometric_mixing, geometric_mixing_loss, logit, sigmoid,
+};
 
 pub struct Neuron<C: ContextFunction> {
     gate: Gate<C>,
