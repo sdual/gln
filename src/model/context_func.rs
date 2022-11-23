@@ -1,8 +1,6 @@
-use rand::{SeedableRng, thread_rng};
-use rand::rngs::ThreadRng;
-use rand_chacha::{ChaCha20Rng, ChaCha8Rng};
-use rand_distr::{Distribution, Normal};
 use crate::utils::math::norm;
+use rand::thread_rng;
+use rand_distr::{Distribution, Normal};
 
 pub trait ContextFunction {
     fn indicator_func(&self, side_info: &[f32]) -> Vec<bool>;
@@ -33,8 +31,11 @@ impl HalfSpaceContext {
             .collect();
         let norm_vec: Vec<f32> = context_maps.iter().map(|x| norm(x)).collect();
 
-        let normalized_context_maps: Vec<Vec<f32>> = context_maps.iter().zip(norm_vec)
-            .map(|(vec, norm)| vec.iter().map(|value| value / norm).collect::<Vec<f32>>()).collect();
+        let normalized_context_maps: Vec<Vec<f32>> = context_maps
+            .iter()
+            .zip(norm_vec)
+            .map(|(vec, norm)| vec.iter().map(|value| value / norm).collect::<Vec<f32>>())
+            .collect();
 
         let context_bias: Vec<f32> = normal
             .sample_iter(&mut thread_rng())
@@ -68,32 +69,32 @@ impl ContextFunction for HalfSpaceContext {
 pub struct SkipGramContext {}
 
 impl ContextFunction for SkipGramContext {
-    fn indicator_func(&self, side_info: &[f32]) -> Vec<bool> {
+    fn indicator_func(&self, _side_info: &[f32]) -> Vec<bool> {
         todo!()
     }
 }
 
-#[cfg(test)]
-mod test {
-    use crate::model::context_func::{ContextFunction, HalfSpaceContext};
+// #[cfg(test)]
+// mod test {
+//     use crate::model::context_func::{ContextFunction, HalfSpaceContext};
 
-    #[test]
-    fn test_new_half_space_context() {
-        // このテストは後々いらない。初期化がうまく出来ているかチェックするためだけ。
-        let actual = HalfSpaceContext::new(2, 3);
-    }
+//     #[test]
+//     fn test_new_half_space_context() {
+//         // このテストは後々いらない。初期化がうまく出来ているかチェックするためだけ。
+//         let actual = HalfSpaceContext::new(2, 3);
+//     }
 
-    #[test]
-    fn test_half_space_indicator_func() {
-        let side_info = vec![1.2, 1.5, 0.9];
-        let context_dim = 4;
-        let feature_dim = 3;
-        let half_space_context = HalfSpaceContext::new(context_dim, feature_dim);
-        // TODO: テストできないので、乱数の生成はシードを固定できるようにする。
-        let actual = half_space_context.indicator_func(&side_info);
+//     #[test]
+//     fn test_half_space_indicator_func() {
+//         let side_info = vec![1.2, 1.5, 0.9];
+//         let context_dim = 4;
+//         let feature_dim = 3;
+//         let half_space_context = HalfSpaceContext::new(context_dim, feature_dim);
+//         // TODO: テストできないので、乱数の生成はシードを固定できるようにする。
+//         let actual = half_space_context.indicator_func(&side_info);
 
-        for bit in actual {
-            println!("{}", bit);
-        }
-    }
-}
+//         for bit in actual {
+//             println!("{}", bit);
+//         }
+//     }
+// }

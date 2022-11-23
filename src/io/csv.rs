@@ -1,11 +1,6 @@
 extern crate csv;
 extern crate rustc_serialize;
 
-use std::collections::HashMap;
-use std::error::Error;
-
-use csv::StringRecord;
-
 #[derive(Debug)]
 pub struct DataFrame {
     pub features: Vec<Vec<f32>>,
