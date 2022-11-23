@@ -37,9 +37,12 @@ impl Layer {
         input_dim: usize,
         context_dim: usize,
         feature_dim: usize,
+        learning_rate: f32,
     ) -> Self {
         let neurons: Vec<Neuron<HalfSpaceContext>> = (0usize..neuron_num)
-            .map(|_| Neuron::with_half_space_context(input_dim, context_dim, feature_dim))
+            .map(|_| {
+                Neuron::with_half_space_context(input_dim, context_dim, feature_dim, learning_rate)
+            })
             .collect();
 
         Self::new(neurons, input_dim)
@@ -50,11 +53,10 @@ impl Layer {
         context_index_map: &HashMap<NeuronId, ContextIndex>,
         inputs: &Vec<f32>,
         target: i32,
-    ) -> LayerTrainHistory {
+    ) {
         for neuron_id in 0usize..self.num_neurons {
             self.neurons[neuron_id].update_weights(inputs, target, context_index_map[&neuron_id]);
         }
-        LayerTrainHistory {}
     }
 
     pub fn predict_by_context_index(
@@ -68,7 +70,6 @@ impl Layer {
                 .predict_by_context_index(context_index_map[&neuron_id], inputs);
             probabilities.push(probability);
         }
-
         probabilities
     }
 
@@ -136,19 +137,19 @@ impl BaseLayer {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::model::layer::BaseLayer;
+// #[cfg(test)]
+// mod tests {
+//     use crate::model::layer::BaseLayer;
 
-    #[test]
-    fn test_base_layer_predict() {
-        let features = vec![1.0, 5.0, 4.0, 4.0];
-        let base_layer = BaseLayer {
-            pred_clipping_value: 0.01,
-        };
-        let actual = base_layer.predict(&features);
+//     #[test]
+//     fn test_base_layer_predict() {
+//         let features = vec![1.0, 5.0, 4.0, 4.0];
+//         let base_layer = BaseLayer {
+//             pred_clipping_value: 0.01,
+//         };
+//         let actual = base_layer.predict(&features);
 
-        let expected = vec![-4.59512, 4.595121, 1.0986123, 1.0986123];
-        assert_eq!(actual, expected);
-    }
-}
+//         let expected = vec![-4.59512, 4.595121, 1.0986123, 1.0986123];
+//         assert_eq!(actual, expected);
+//     }
+// }
