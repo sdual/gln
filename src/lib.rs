@@ -1,3 +1,4 @@
+pub mod io;
 pub mod model;
 mod optimize;
-mod utils;
+pub mod utils;

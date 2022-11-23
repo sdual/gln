@@ -53,6 +53,22 @@ pub fn norm(vector: &Vec<f32>) -> f32 {
     inner_product_itself.sqrt()
 }
 
+pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
+    let mut numerator = 0.0_f32;
+    for (pred, label) in predictions.iter().zip(labels) {
+        if *pred > 0.5 {
+            if *label == 1 {
+                numerator += 1.0;
+            }
+        } else {
+            if *label == 0 {
+                numerator += 1.0;
+            }
+        }
+    }
+    numerator / (predictions.len() as f32)
+}
+
 // #[cfg(test)]
 // mod tests {
 //     use crate::utils::math::{clip_prob, geometric_mixing, logit, sigmoid};
