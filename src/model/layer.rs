@@ -124,11 +124,20 @@ impl BaseLayer {
         let max_value = features.max();
         let min_value = features.min();
 
-        let base_predictions = features
-            .iter()
-            .map(|value| (value - min_value) / (max_value - min_value))
-            .map(|value| logit(clip_prob(value, self.pred_clipping_value)))
-            .collect::<Vec<f32>>();
+        let base_predictions = if max_value != min_value {
+            features
+                .iter()
+                .map(|value| (value - min_value) / (max_value - min_value))
+                .map(|value| logit(clip_prob(value, self.pred_clipping_value)))
+                .collect::<Vec<f32>>()
+        } else {
+            let feature_len = features.len();
+            features
+                .iter()
+                .map(|value| value / feature_len as f32)
+                .map(|value| logit(clip_prob(value, self.pred_clipping_value)))
+                .collect::<Vec<f32>>()
+        };
 
         LayerPrediction {
             predictions: DMatrix::from_row_slice(self.feature_dim, 1, &base_predictions),
@@ -137,19 +146,32 @@ impl BaseLayer {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::model::layer::BaseLayer;
+#[cfg(test)]
+mod tests {
+    use nalgebra::{DMatrix, DVector};
 
-//     #[test]
-//     fn test_base_layer_predict() {
-//         let features = vec![1.0, 5.0, 4.0, 4.0];
-//         let base_layer = BaseLayer {
-//             pred_clipping_value: 0.01,
-//         };
-//         let actual = base_layer.predict(&features);
+    use crate::model::layer::BaseLayer;
 
-//         let expected = vec![-4.59512, 4.595121, 1.0986123, 1.0986123];
-//         assert_eq!(actual, expected);
-//     }
-// }
+    #[test]
+    fn test_base_layer_predifct() {
+        let features = vec![1.0, 5.0, 4.0, 4.0];
+        let base_layer = BaseLayer::new(0.01, features.len());
+        let feature_vec = DVector::from_vec(features);
+        let actual = base_layer.predict(&feature_vec);
+
+        let expected = vec![0.01, 0.99, 0.75, 0.75];
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_predict_with_logit_all_zero() {
+        let features = vec![0.0, 0.0, 0.0, 0.0];
+        let base_layer = BaseLayer::new(0.01, features.len());
+        let feature_vec = DVector::from_vec(features);
+
+        let actual = base_layer.predict_with_logits(&feature_vec);
+
+        let expected = DMatrix::from_row_slice(4, 1, &vec![-4.59512, -4.59512, -4.59512, -4.59512]);
+        assert_eq!(actual.predictions, expected);
+    }
+}
