@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use gln::model::gln_model;
 use nalgebra::DVector;
 
-use gln::io::csv::DataFrame;
 use gln::utils::math::accuracy;
 
 #[test]
