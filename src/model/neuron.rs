@@ -27,6 +27,7 @@ impl Neuron<HalfSpaceContext> {
         context_dim: usize,
         feature_dim: usize,
         learning_rate: f32,
+        weight_clipping_value: f32,
     ) -> Neuron<HalfSpaceContext> {
         let config = LayerConfig::with_default_value();
         Neuron {
@@ -39,7 +40,7 @@ impl Neuron<HalfSpaceContext> {
             optimizer: OnlineGradientDecent::new(learning_rate),
             gradient: LogGeometricMixingGradient::new(),
             pred_clipping_value: config.pred_clipping_value,
-            weight_clipping_value: config.weight_clipping_value,
+            weight_clipping_value: weight_clipping_value,
         }
     }
 }
