@@ -109,15 +109,15 @@ impl BaseLayer {
     }
 
     pub fn predict(&self, features: &DVector<f32>) -> Vec<f32> {
-        let max_value = features.max();
-        let min_value = features.min();
+        // let max_value = features.max();
+        // let min_value = features.min();
 
-        let base_predictions = features
-            .iter()
-            .map(|value| (value - min_value) / (max_value - min_value))
-            .map(|value| clip_prob(value, self.pred_clipping_value))
-            .collect::<Vec<f32>>();
-        base_predictions
+        // let base_predictions = features
+        //     .iter()
+        //     .map(|value| (value - min_value) / (max_value - min_value))
+        //     .map(|value| clip_prob(value, self.pred_clipping_value))
+        //     .collect::<Vec<f32>>();
+        self.normalize(features)
     }
 
     pub fn predict_with_logits(&self, features: &DVector<f32>) -> LayerPrediction {
@@ -142,6 +142,25 @@ impl BaseLayer {
         LayerPrediction {
             predictions: DMatrix::from_row_slice(self.feature_dim, 1, &base_predictions),
             context_index_map: None,
+        }
+    }
+
+    fn normalize(&self, features: &DVector<f32>) -> Vec<f32> {
+        let max_value = features.max();
+        let min_value = features.min();
+
+        if max_value != min_value {
+            features
+                .iter()
+                .map(|value| (value - min_value) / (max_value - min_value))
+                .map(|value| clip_prob(value, self.pred_clipping_value))
+                .collect::<Vec<f32>>()
+        } else {
+            features
+                .iter()
+                .map(|_| 1.0 as f32)
+                .map(|value| clip_prob(value, self.pred_clipping_value))
+                .collect::<Vec<f32>>()
         }
     }
 }
