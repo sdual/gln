@@ -62,6 +62,7 @@ impl<C: ContextFunction> Neuron<C> {
             geometric_mixing(inputs, &current_weights, self.pred_clipping_value),
             self.pred_clipping_value,
         );
+
         // let loss = geometric_mixing_loss(target, prediction);
         // NeuronTrainHistory { prediction, loss }
         prediction

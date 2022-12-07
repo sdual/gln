@@ -71,3 +71,30 @@ fn test_gln_predict_fit() {
     assert_eq!(predict_fit_result.loss_histories, expected_loss);
     assert_eq!(predict_fit_result.prediction, 0.5000011);
 }
+
+#[test]
+fn test_gln_predict_with_zero_vector() {
+    let neuron_nums = vec![20, 20, 20, 1];
+    let context_dim = 5;
+    let learning_rate = 0.1;
+    let feature_dim = 52;
+
+    let feature_vec = DVector::from_vec(vec![
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ]);
+
+    let label = 0;
+
+    let mut gln = gln_model::GLN::new(neuron_nums, context_dim, feature_dim, learning_rate);
+
+    for _ in 0..2 {
+        let mut pred = gln.predict(&feature_vec);
+        _ = gln.train(&feature_vec, label, &mut pred.context_index_map);
+
+        println!("prediction: {:?}", pred.probability);
+    }
+
+    // assert_eq!(pred.probability, 0.5000011);
+}
