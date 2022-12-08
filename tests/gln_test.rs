@@ -12,28 +12,7 @@ fn test_gln_predict() {
     let learning_rate = 0.1;
     let weight_clipping_value = 5.0;
     let feature_dim = 3;
-
-    let feature_vec = DVector::from_vec(vec![0.2, 0.3, 0.1]);
-
-    let gln = gln_model::GLN::new(
-        neuron_nums,
-        context_dim,
-        feature_dim,
-        learning_rate,
-        weight_clipping_value,
-    );
-    let pred = gln.predict(&feature_vec);
-
-    assert_eq!(pred.probability, 0.5000011);
-}
-
-#[test]
-fn test_gln_train() {
-    let neuron_nums = vec![3, 2, 1];
-    let context_dim = 5;
-    let learning_rate = 0.1;
-    let weight_clipping_value = 5.0;
-    let feature_dim = 3;
+    let grad_weight = 1.0;
 
     let feature_vec = DVector::from_vec(vec![0.2, 0.3, 0.1]);
     let target = 1;
@@ -44,6 +23,7 @@ fn test_gln_train() {
         feature_dim,
         learning_rate,
         weight_clipping_value,
+        grad_weight,
     );
     let pred = gln.predict(&feature_vec);
     let train_history = gln.train(&feature_vec, target, &pred.context_index_map);
@@ -67,6 +47,7 @@ fn test_gln_predict_fit() {
     let learning_rate = 0.1;
     let weight_clipping_value = 5.0;
     let feature_dim = 3;
+    let grad_weight = 1.0;
 
     let feature_vec = DVector::from_vec(vec![0.2, 0.3, 0.1]);
     let target = 1;
@@ -77,6 +58,7 @@ fn test_gln_predict_fit() {
         feature_dim,
         learning_rate,
         weight_clipping_value,
+        grad_weight,
     );
     let predict_fit_result = gln.predict_fit(&feature_vec, target);
 
@@ -100,6 +82,7 @@ fn test_gln_predict_with_zero_vector() {
     let learning_rate = 0.1;
     let weight_clipping_value = 5.0;
     let feature_dim = 52;
+    let grad_weight = 1.0;
 
     let feature_vec = DVector::from_vec(vec![
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -115,6 +98,7 @@ fn test_gln_predict_with_zero_vector() {
         feature_dim,
         learning_rate,
         weight_clipping_value,
+        grad_weight,
     );
 
     for _ in 0..2 {

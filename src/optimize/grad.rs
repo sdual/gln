@@ -8,6 +8,7 @@ pub trait OnlineGradient {
         weights: &Vec<f32>,
         index: usize,
         clipping_value: f32,
+        weight: f32,
     ) -> f32;
 }
 
@@ -27,9 +28,10 @@ impl OnlineGradient for LogGeometricMixingGradient {
         weights: &Vec<f32>,
         index: usize,
         clipping_value: f32,
+        weight: f32,
     ) -> f32 {
         if target == 1 {
-            2.0 * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
+            weight * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
                 * math::logit(inputs[index])
         } else {
             (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
