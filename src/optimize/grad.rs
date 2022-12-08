@@ -28,8 +28,13 @@ impl OnlineGradient for LogGeometricMixingGradient {
         index: usize,
         clipping_value: f32,
     ) -> f32 {
-        (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
-            * math::logit(inputs[index])
+        if target == 1 {
+            2.0 * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
+                * math::logit(inputs[index])
+        } else {
+            (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
+                * math::logit(inputs[index])
+        }
     }
 }
 
