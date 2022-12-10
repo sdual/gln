@@ -24,6 +24,7 @@ fn test_gln_predict() {
         learning_rate,
         weight_clipping_value,
         grad_weight,
+        1.0,
     );
     let pred = gln.predict(&feature_vec);
     let train_history = gln.train(&feature_vec, target, &pred.context_index_map);
@@ -59,6 +60,7 @@ fn test_gln_predict_fit() {
         learning_rate,
         weight_clipping_value,
         grad_weight,
+        1.0,
     );
     let predict_fit_result = gln.predict_fit(&feature_vec, target);
 
@@ -99,6 +101,7 @@ fn test_gln_predict_with_zero_vector() {
         learning_rate,
         weight_clipping_value,
         grad_weight,
+        1.0,
     );
 
     for _ in 0..2 {

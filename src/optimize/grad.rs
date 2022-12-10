@@ -12,11 +12,15 @@ pub trait OnlineGradient {
     ) -> f32;
 }
 
-pub struct LogGeometricMixingGradient;
+pub struct LogGeometricMixingGradient {
+    reg_param: f32,
+}
 
 impl LogGeometricMixingGradient {
-    pub fn new() -> Self {
-        LogGeometricMixingGradient
+    pub fn new(reg_param: f32) -> Self {
+        LogGeometricMixingGradient {
+            reg_param: reg_param,
+        }
     }
 }
 
@@ -32,10 +36,10 @@ impl OnlineGradient for LogGeometricMixingGradient {
     ) -> f32 {
         if target == 1 {
             weight * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
-                * math::logit(inputs[index])
+                * math::logit(inputs[index]) + self.reg_param * weights[index]
         } else {
             (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
-                * math::logit(inputs[index])
+                * math::logit(inputs[index]) + self.reg_param * weights[index]
         }
     }
 }

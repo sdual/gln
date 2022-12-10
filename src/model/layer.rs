@@ -40,6 +40,7 @@ impl Layer {
         learning_rate: f32,
         weight_clipping_value: f32,
         grad_weight: f32,
+        reg_param: f32,
     ) -> Self {
         let neurons: Vec<Neuron<HalfSpaceContext>> = (0usize..neuron_num)
             .map(|_| {
@@ -50,6 +51,7 @@ impl Layer {
                     learning_rate,
                     weight_clipping_value,
                     grad_weight,
+                    reg_param
                 )
             })
             .collect();

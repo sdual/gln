@@ -34,6 +34,7 @@ impl GLN {
         learning_rate: f32,
         weight_clipping_value: f32,
         grad_weight: f32,
+        reg_param: f32,
     ) -> Self {
         let mut layers = Vec::with_capacity(neuron_nums.len());
         let first_layer = Layer::with_neuron_num(
@@ -44,6 +45,7 @@ impl GLN {
             learning_rate,
             weight_clipping_value,
             grad_weight,
+            reg_param,
         );
         layers.push(first_layer);
 
@@ -58,6 +60,7 @@ impl GLN {
                 learning_rate,
                 weight_clipping_value,
                 grad_weight,
+                reg_param,
             );
             layers.push(layer);
         }
