@@ -166,10 +166,16 @@ impl BaseLayer {
                 .map(|value| (value - min_value) / (max_value - min_value))
                 .map(|value| clip_prob(value, self.pred_clipping_value))
                 .collect::<Vec<f32>>()
+        } else if max_value != 0.0 {
+            features
+                .iter()
+                .map(|_| max_value as f32)
+                .map(|value| clip_prob(value, self.pred_clipping_value))
+                .collect::<Vec<f32>>()
         } else {
             features
                 .iter()
-                .map(|_| 1.0 as f32)
+                .map(|_| 0.0 as f32)
                 .map(|value| clip_prob(value, self.pred_clipping_value))
                 .collect::<Vec<f32>>()
         }
