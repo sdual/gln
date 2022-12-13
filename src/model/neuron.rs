@@ -14,7 +14,6 @@ pub struct Neuron<C: ContextFunction> {
     gradient: LogGeometricMixingGradient,
     pred_clipping_value: f32,
     weight_clipping_value: f32,
-    grad_weight: f32,
 }
 
 pub struct NeuronTrainHistory {
@@ -29,7 +28,7 @@ impl Neuron<HalfSpaceContext> {
         feature_dim: usize,
         learning_rate: f32,
         weight_clipping_value: f32,
-        grad_weight: f32,
+        positive_weight: f32,
         reg_param: f32,
     ) -> Neuron<HalfSpaceContext> {
         let config = LayerConfig::with_default_value();
@@ -41,10 +40,9 @@ impl Neuron<HalfSpaceContext> {
                 initialize_balanced_weights,
             ),
             optimizer: OnlineGradientDecent::new(learning_rate),
-            gradient: LogGeometricMixingGradient::new(reg_param),
+            gradient: LogGeometricMixingGradient::new(reg_param, positive_weight),
             pred_clipping_value: config.pred_clipping_value,
             weight_clipping_value: weight_clipping_value,
-            grad_weight: grad_weight,
         }
     }
 }
@@ -84,7 +82,6 @@ impl<C: ContextFunction> Neuron<C> {
                 &current_weights,
                 weight_index,
                 self.pred_clipping_value,
-                self.grad_weight
             );
 
             let updated_weight = self.optimizer.update(current_weights[weight_index], grad);
