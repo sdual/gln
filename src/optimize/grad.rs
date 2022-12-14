@@ -13,14 +13,14 @@ pub trait OnlineGradient {
 
 pub struct LogGeometricMixingGradient {
     reg_param: f32,
-    positive_weight: f32,
+    negative_weight: f32,
 }
 
 impl LogGeometricMixingGradient {
-    pub fn new(reg_param: f32, positive_weight: f32) -> Self {
+    pub fn new(reg_param: f32, negative_weight: f32) -> Self {
         LogGeometricMixingGradient {
             reg_param: reg_param,
-            positive_weight: positive_weight,
+            negative_weight: negative_weight,
         }
     }
 }
@@ -35,12 +35,12 @@ impl OnlineGradient for LogGeometricMixingGradient {
         clipping_value: f32,
     ) -> f32 {
         if target == 1 {
-            self.positive_weight
-                * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
+            (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
                 * math::logit(inputs[index])
                 + self.reg_param * weights[index]
         } else {
-            (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
+            self.negative_weight
+                * (math::geometric_mixing(inputs, weights, clipping_value) - target as f32)
                 * math::logit(inputs[index])
                 + self.reg_param * weights[index]
         }
@@ -53,9 +53,9 @@ mod test {
 
     #[test]
     fn test_log_geometric_mixing_gradient() {
-        let positive_weight = 1.0;
+        let negative_weight = 1.0;
         let reg_param = 0.1;
-        let grad = LogGeometricMixingGradient::new(reg_param, positive_weight);
+        let grad = LogGeometricMixingGradient::new(reg_param, negative_weight);
         let xs = vec![0.1, 0.4, 0.6];
         let target = 1;
         let weights = vec![0.2, 1.6, 0.7];
