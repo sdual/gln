@@ -53,6 +53,10 @@ pub fn norm(vector: &Vec<f32>) -> f32 {
     inner_product_itself.sqrt()
 }
 
+pub fn calibration(original_prob: f32, sampling_rate: f32) -> f32 {
+    original_prob / (original_prob + (1.0 - original_prob) / sampling_rate)
+}
+
 pub fn accuracy(predictions: &Vec<f32>, labels: &Vec<i32>) -> f32 {
     let mut numerator = 0.0_f32;
     for (pred, label) in predictions.iter().zip(labels) {
