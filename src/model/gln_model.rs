@@ -3,13 +3,14 @@ use nalgebra::DVector;
 use crate::model::config::LayerConfig;
 use crate::model::layer::{BaseLayer, Layer};
 use crate::utils::data_type::{ContextIndex, LayerId, NeuronId};
-use crate::utils::math::{geometric_mixing_loss, sigmoid};
+use crate::utils::math::{calibration, geometric_mixing_loss, sigmoid};
 use std::collections::HashMap;
 
 pub struct GLN {
     layers: Vec<Layer>,
     base_layer: BaseLayer,
     num_layers: usize,
+    negative_weight: f32,
 }
 
 pub struct GLNPrediction {
@@ -71,6 +72,7 @@ impl GLN {
             layers,
             base_layer: BaseLayer::new(config.pred_clipping_value, feature_dim),
             num_layers,
+            negative_weight,
         }
     }
 
@@ -133,7 +135,7 @@ impl GLN {
 
         if let Some(&pred) = layer_prediction.predictions.get(0) {
             GLNPrediction {
-                probability: sigmoid(pred),
+                probability: calibration(sigmoid(pred), self.negative_weight),
                 context_index_map: layer_context_index_map,
             }
         } else {
