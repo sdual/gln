@@ -16,8 +16,8 @@ impl Gate<HalfSpaceContext> {
         feature_dim: usize,
         weight_init_func: F,
     ) -> Gate<HalfSpaceContext>
-    where
-        F: Fn(usize, usize) -> Vec<Vec<f32>>,
+        where
+            F: Fn(usize, usize) -> Vec<Vec<f32>>,
     {
         Gate {
             weights: weight_init_func(input_dim, context_dim),
@@ -66,71 +66,73 @@ pub fn initialize_balanced_weights(input_dim: usize, context_dim: usize) -> Vec<
         .collect()
 }
 
-// #[cfg(test)]
-// mod test {
-//     use mockall::mock;
+#[cfg(test)]
+mod test {
+    use mockall::mock;
+    use nalgebra::DVector;
 
-//     use crate::model::context_func::ContextFunction;
-//     use crate::model::context_func::HalfSpaceContext;
-//     use crate::model::gate::{initialize_balanced_weights, Gate};
+    use crate::model::context_func::ContextFunction;
+    use crate::model::context_func::HalfSpaceContext;
+    use crate::model::gate::{Gate, initialize_balanced_weights};
 
-//     #[test]
-//     fn test_transform_bits_to_weight_indicator() {
-//         let contexts = vec![true, false, true, true];
-//         let actual = Gate::<HalfSpaceContext>::transform_contexts_to_weight_indicator(contexts);
-//         assert_eq!(actual, 13);
-//     }
+    #[test]
+    fn test_transform_bits_to_weight_indicator() {
+        let contexts = vec![true, false, true, true];
+        let actual = Gate::<HalfSpaceContext>::transform_contexts_to_weight_indicator(contexts);
+        assert_eq!(actual, 13);
+    }
 
-//     mock! {
-//         pub ContextFunctionM {}
+    mock! {
+        pub ContextFunctionM {}
 
-//         impl ContextFunction for ContextFunctionM {
-//             fn indicator_func(&self, side_info: &[f32]) -> Vec<bool>;
-//         }
-//     }
+        impl ContextFunction for ContextFunctionM {
+            fn indicator_func(&self, side_info: &[f32]) -> Vec<bool>;
+        }
+    }
 
-//     #[test]
-//     fn test_select_weights() {
-//         let mut mock_context_func = MockContextFunctionM::new();
-//         mock_context_func
-//             .expect_indicator_func()
-//             .returning(|side_info| vec![false, true]);
-//         let gate = Gate {
-//             input_dim: 4,
-//             weights: vec![
-//                 vec![0.1, 0.2],
-//                 vec![0.3, 0.4],
-//                 vec![0.5, 0.6],
-//                 vec![0.7, 0.8],
-//             ],
-//             context_func: mock_context_func,
-//         };
+    #[test]
+    fn test_select_weights() {
+        let mut mock_context_func = MockContextFunctionM::new();
+        mock_context_func
+            .expect_indicator_func()
+            .times(1)
+            .returning(|side_info| vec![false, true]);
+        let gate = Gate {
+            weights: vec![
+                vec![0.1, 0.2],
+                vec![0.3, 0.4],
+                vec![0.5, 0.6],
+                vec![0.7, 0.8],
+            ],
+            context_func: mock_context_func,
+        };
 
-//         let side_info = vec![0.1, 0.2, 0.2, 0.9];
-//         let (actual, index) = gate.select_weights(&side_info);
+        let side_info = vec![0.1, 0.2, 0.2, 0.9];
+        let side_info_vec = DVector::from_vec(side_info);
+        let (actual, index) = gate.select_weights(&side_info_vec);
 
-//         assert_eq!(*actual, vec![0.5, 0.6]);
-//         assert_eq!(index, 2_usize);
-//     }
+        assert_eq!(*actual, vec![0.5, 0.6]);
+        assert_eq!(index, 2_usize);
+    }
 
-//     #[test]
-//     fn test_update_weights() {
-//         let mut gate = Gate::<HalfSpaceContext>::new(2, 3, 10, initialize_balanced_weights);
-//         gate.update_weights(0, vec![0.2, 0.1]);
-//         let actual = &gate.weights[0];
-//         let expected: Vec<f32> = vec![0.2, 0.1];
-//         assert_eq!(*actual, expected);
-//     }
+    #[test]
+    fn test_update_weights() {
+        let mut gate = Gate::<HalfSpaceContext>::new(2, 3, 10, initialize_balanced_weights);
+        gate.update_weights(0, vec![0.2, 0.1]);
+        let actual = &gate.weights[0];
+        let expected: Vec<f32> = vec![0.2, 0.1];
+        assert_eq!(*actual, expected);
+    }
 
-//     #[test]
-//     fn test_initialize_balanced_weights() {
-//         let actual = initialize_balanced_weights(2, 2);
-//         let expected: Vec<Vec<f32>> = vec![
-//             vec![0.5, 0.5],
-//             vec![0.5, 0.5],
-//             vec![0.5, 0.5],
-//             vec![0.5, 0.5],
-//         ];
-//         assert_eq!(actual, expected);
-//     }
-// }
+    #[test]
+    fn test_initialize_balanced_weights() {
+        let actual = initialize_balanced_weights(2, 2);
+        let expected: Vec<Vec<f32>> = vec![
+            vec![0.5, 0.5],
+            vec![0.5, 0.5],
+            vec![0.5, 0.5],
+            vec![0.5, 0.5],
+        ];
+        assert_eq!(actual, expected);
+    }
+}

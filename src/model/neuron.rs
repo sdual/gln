@@ -2,7 +2,7 @@ use nalgebra::DVector;
 
 use crate::model::config::LayerConfig;
 use crate::model::context_func::{ContextFunction, HalfSpaceContext, SkipGramContext};
-use crate::model::gate::{initialize_balanced_weights, Gate};
+use crate::model::gate::{Gate, initialize_balanced_weights};
 use crate::optimize::grad::{LogGeometricMixingGradient, OnlineGradient};
 use crate::optimize::optimizer::OnlineGradientDecent;
 use crate::utils::data_type::ContextIndex;
@@ -56,18 +56,12 @@ impl Neuron<SkipGramContext> {
 impl<C: ContextFunction> Neuron<C> {
     pub fn predict_by_context_index(&self, context_index: ContextIndex, inputs: &Vec<f32>) -> f32 {
         let current_weights = self.gate.get_weights(context_index);
-        // let mut logit_sum: f32 = 0.0;
-        // for (weight, input) in current_weights.iter().zip(inputs) {
-        //     logit_sum += weight * logit(clip_prob(*input, self.pred_clipping_value));
-        // }
 
         let prediction = clip_prob(
             geometric_mixing(inputs, &current_weights, self.pred_clipping_value),
             self.pred_clipping_value,
         );
 
-        // let loss = geometric_mixing_loss(target, prediction);
-        // NeuronTrainHistory { prediction, loss }
         prediction
     }
 
@@ -97,42 +91,83 @@ impl<C: ContextFunction> Neuron<C> {
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use crate::model::context_func::HalfSpaceContext;
-//     use crate::model::neuron::Neuron;
+#[cfg(test)]
+mod test {
+    use mockall::mock;
 
-//     #[test]
-//     fn test_update_weights() {
-//         let neuron = Neuron::with_half_space_context(5, 10, 100);
-//     }
+    use crate::model::context_func::HalfSpaceContext;
+    use crate::model::gate::MockGate;
+    use crate::model::gate::initialize_balanced_weights;
+    use crate::model::neuron::Neuron;
 
-//     #[test]
-//     fn test_predict_and_update_weights() {
-//         let mut neuron = Neuron::with_half_space_context(5, 2, 5);
 
-//         let previous_weights = &neuron.gate.weights;
-//         for v1 in previous_weights {
-//             for v2 in v1 {
-//                 println!("{}", v2);
-//             }
-//         }
+    // mock! {
+    //     #[automock]
+    //     impl Gate {
+    //         pub fn update_weight(&mut self, context_index: usize, weights: Vec<f32>);
+    //     }
+    // }
 
-//         let features = vec![1.4, 1.3, 2.4, 3.1, 5.4];
-//         let inputs = vec![0.4, 0.3, 0.4, 0.9, 0.4];
-//         let actual = neuron.predict_and_update_weights(&features, &inputs, 1);
-//         assert_eq!(actual, 0.50667614);
-//         let actual_weight = &neuron.gate.weights;
+    // #[test]
+    // fn test_update_weights() {
+    //     let input_dim = 3;
+    //     let context_dim = 5;
+    //     let feature_dim = 3;
+    //     let learning_rate = 0.01;
+    //     let weight_clipping_value = 1.0e-3;
+    //     let negative_weight = 10.0;
+    //     let reg_param = 1.0;
+    //
+    //     let mut mock_gate = MockGate::new(
+    //         input_dim,
+    //         context_dim,
+    //         feature_dim,
+    //         initialize_balanced_weights,
+    //     );
+    //
+    //     let mut neuron = Neuron::with_half_space_context(
+    //         input_dim,
+    //         context_dim,
+    //         feature_dim,
+    //         learning_rate,
+    //         weight_clipping_value,
+    //         negative_weight,
+    //         reg_param,
+    //     );
+    //
+    //     let inputs = vec![0.8, 0.4, 0.5];
+    //     let target = 1;
+    //     let context_index = 0;
+    //
+    //     neuron.update_weights(&inputs, target, context_index);
+    // }
 
-//         println!("-----");
+    // #[test]
+    // fn test_predict_and_update_weights() {
+    //     let mut neuron = Neuron::with_half_space_context(5, 2, 5);
+    //
+    //     let previous_weights = &neuron.gate.weights;
+    //     for v1 in previous_weights {
+    //         for v2 in v1 {
+    //             println!("{}", v2);
+    //         }
+    //     }
+    //
+    //     let features = vec![1.4, 1.3, 2.4, 3.1, 5.4];
+    //     let inputs = vec![0.4, 0.3, 0.4, 0.9, 0.4];
+    //     let actual = neuron.predict_and_update_weights(&features, &inputs, 1);
+    //     assert_eq!(actual, 0.50667614);
+    //     let actual_weight = &neuron.gate.weights;
+    //
+    //     println!("-----");
+    //
+    //     for v1 in actual_weight {
+    //         for v2 in v1 {
+    //             println!("{}", v2);
+    //         }
+    //     }
+    // }
 
-//         for v1 in actual_weight {
-//             for v2 in v1 {
-//                 println!("{}", v2);
-//             }
-//         }
-//     }
-
-//     // #[test]
-//     // fn test_update_weights() {}
-// }
+    // #[test]
+    // fn test_update_weights() {}
+}
