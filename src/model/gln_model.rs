@@ -123,7 +123,7 @@ impl GLN {
     }
 
     pub fn predict(&self, features: &DVector<f32>) -> GLNPrediction {
-        let mut layer_prediction = self.base_layer.predict_with_logits(features);
+        let mut layer_prediction = self.base_layer.predict_through_logits(features);
         let mut layer_context_index_map = HashMap::new();
 
         for layer_index in 0..self.num_layers {

@@ -120,18 +120,10 @@ impl BaseLayer {
     }
 
     pub fn predict(&self, features: &DVector<f32>) -> Vec<f32> {
-        // let max_value = features.max();
-        // let min_value = features.min();
-
-        // let base_predictions = features
-        //     .iter()
-        //     .map(|value| (value - min_value) / (max_value - min_value))
-        //     .map(|value| clip_prob(value, self.pred_clipping_value))
-        //     .collect::<Vec<f32>>();
         self.normalize(features)
     }
 
-    pub fn predict_with_logits(&self, features: &DVector<f32>) -> LayerPrediction {
+    pub fn predict_through_logits(&self, features: &DVector<f32>) -> LayerPrediction {
         let max_value = features.max();
         let min_value = features.min();
 
@@ -184,12 +176,45 @@ impl BaseLayer {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use nalgebra::{DMatrix, DVector};
 
-    use crate::model::layer::BaseLayer;
+    use crate::model::layer::{BaseLayer, Layer};
 
     #[test]
-    fn test_base_layer_predifct() {
+    fn test_train() {
+        let neuron_num = 2;
+        let input_dim = 3;
+        let context_dim = 5;
+        let feature_dim = 3;
+        let learning_rate = 0.01;
+        let weight_clipping_value = 1.0e-3;
+        let negative_weight = 1.0;
+        let reg_param = 1.0;
+
+        let mut layer = Layer::with_neuron_num(
+            neuron_num,
+            input_dim,
+            context_dim,
+            feature_dim,
+            learning_rate,
+            weight_clipping_value,
+            negative_weight,
+            reg_param);
+
+        let context_index_map = HashMap::from([
+            (0, 1),
+            (1, 3),
+            (2, 5)
+        ]);
+        let inputs = vec![0.3, 0.2, 0.5];
+        let target = 1;
+
+        layer.train(&context_index_map, &inputs, target);
+    }
+
+    #[test]
+    fn test_base_layer_predict() {
         let features = vec![1.0, 5.0, 4.0, 4.0];
         let base_layer = BaseLayer::new(0.01, features.len());
         let feature_vec = DVector::from_vec(features);
@@ -200,12 +225,25 @@ mod tests {
     }
 
     #[test]
-    fn test_predict_with_logit_all_zero() {
+    fn test_predict_through_logit() {
+        let features = vec![8.0, 4.0, 6.0, 3.0];
+        let base_layer = BaseLayer::new(0.01, features.len());
+        let feature_vec = DVector::from_vec(features);
+
+        let actual = base_layer.predict_through_logits(&feature_vec);
+
+        let expected = DMatrix::from_row_slice(4, 1, &vec![4.595121, -1.3862944, 0.4054652, -4.59512]);
+        assert_eq!(actual.predictions, expected);
+    }
+
+
+    #[test]
+    fn test_predict_through_logit_all_zero() {
         let features = vec![0.0, 0.0, 0.0, 0.0];
         let base_layer = BaseLayer::new(0.01, features.len());
         let feature_vec = DVector::from_vec(features);
 
-        let actual = base_layer.predict_with_logits(&feature_vec);
+        let actual = base_layer.predict_through_logits(&feature_vec);
 
         let expected = DMatrix::from_row_slice(4, 1, &vec![-4.59512, -4.59512, -4.59512, -4.59512]);
         assert_eq!(actual.predictions, expected);
